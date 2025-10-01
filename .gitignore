@@ -1,0 +1,34 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Build output
+/tmp
+/tmp/*
+bin/
+dist/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+
+# Go modules
+vendor/
+
+# Air tmp build
+tmp/
+.air.toml
+
+# Environment config
+.env
