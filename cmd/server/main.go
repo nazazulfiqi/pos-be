@@ -1,15 +1,29 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"log"
+	"os"
+
+	"pos-be/config"
+	"pos-be/internal/router"
 )
 
 func main() {
-	r := gin.Default()
+	// Init DB
+	db, err := config.InitDB()
+	if err != nil {
+		log.Fatal("❌ Failed to connect database:", err)
+	}
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "pong"})
-	})
+	// Setup router dengan DB
+	r := router.SetupRouter(db)
 
-	r.Run(":8080") // jalankan di port 8080
+	// Ambil port dari env
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("🚀 POS Backend running on port", port)
+	r.Run(":" + port)
 }
