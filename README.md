@@ -75,7 +75,7 @@ Dibangun dengan arsitektur terpisah antara frontend & backend agar lebih fleksib
 
 ## 📌 Tech Stack
 
-- 🖥️ **Backend**: Golang (Gin / Echo / Fiber - sesuai implementasi)
+- 🖥️ **Backend**: Golang (Gin)
 - 🗄️ **Database**: PostgreSQL / MySQL
 - 💳 **Payment**: Midtrans (Snap API + Webhook)
 - 🔑 **Auth**: JWT, Role-based Access
@@ -100,4 +100,4 @@ go run main.go
 
 ## 📜 Lisensi
 
-- MIT License © 2025
+- MIT License © 2025 [Naza Zulfiqi](https://www.nazazulfiqi.me/)
