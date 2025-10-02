@@ -31,6 +31,18 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		{
 			userRoutes.POST("/", c.UserHandler.CreateUser)
 		}
+
+		categories := api.Group("/categories")
+		categories.Use(middleware.JWTAuth(), middleware.AdminOrStaffOnly())
+		{
+			categories.POST("", c.CategoryHandler.Create)
+			categories.GET("", c.CategoryHandler.FindAll)
+			categories.GET("/filter", c.CategoryHandler.FindWithFilter)
+			categories.GET("/:id", c.CategoryHandler.FindByID)
+			categories.PUT("/:id", c.CategoryHandler.Update)
+			categories.DELETE("/:id", c.CategoryHandler.Delete)
+
+		}
 	}
 
 	return r

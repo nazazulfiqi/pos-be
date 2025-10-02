@@ -62,9 +62,54 @@ func AdminOnly() gin.HandlerFunc {
 			return
 		}
 
-		// Cek apakah role_id bukan 1 (admin)
-		if roleID, ok := userRoleID.(uint); !ok || roleID != 1 {
-			response.Error(ctx, http.StatusForbidden, "Forbidden: Admin only")
+		switch roleID := userRoleID.(type) {
+		case float64: // dari JWT MapClaims
+			if int(roleID) != 1 {
+				response.Error(ctx, http.StatusForbidden, "Forbidden: Admin only")
+				ctx.Abort()
+				return
+			}
+		case uint: // kalau dari DB atau langsung set
+			if roleID != 1 {
+				response.Error(ctx, http.StatusForbidden, "Forbidden: Admin only")
+				ctx.Abort()
+				return
+			}
+		default:
+			response.Error(ctx, http.StatusForbidden, "Forbidden: Invalid role type")
+			ctx.Abort()
+			return
+		}
+
+		ctx.Next()
+	}
+}
+
+func AdminOrStaffOnly() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		userRoleID, exists := ctx.Get("role_id")
+		if !exists {
+			response.Error(ctx, http.StatusUnauthorized, "Unauthorized")
+			ctx.Abort()
+			return
+		}
+
+		// Cek apakah role_id bukan 1 (admin) dan bukan 2 (staff/kasir)
+		switch roleID := userRoleID.(type) {
+		case float64: // jwt.MapClaims biasanya decode ke float64
+			if roleID != 1 && roleID != 2 {
+				response.Error(ctx, http.StatusForbidden, "Forbidden: Admin or Staff only")
+				ctx.Abort()
+				return
+			}
+		case uint:
+			if roleID != 1 && roleID != 2 {
+				response.Error(ctx, http.StatusForbidden, "Forbidden: Admin or Staff only")
+				ctx.Abort()
+				return
+			}
+		default:
+			response.Error(ctx, http.StatusForbidden, "Forbidden: Invalid role")
 			ctx.Abort()
 			return
 		}
