@@ -43,6 +43,16 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			categories.DELETE("/:id", c.CategoryHandler.Delete)
 
 		}
+		product := r.Group("/products")
+		product.Use(middleware.JWTAuth(), middleware.AdminOnly())
+		{
+			product.POST("", c.ProductHandler.Create)
+			product.GET("", c.ProductHandler.FindAll)
+			product.GET("/:id", c.ProductHandler.FindByID)
+			product.PUT("/:id", c.ProductHandler.Update)
+			product.DELETE("/:id", c.ProductHandler.Delete)
+		}
+
 	}
 
 	return r

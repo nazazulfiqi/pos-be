@@ -37,6 +37,8 @@ type Product struct {
 	Category   Category  `gorm:"foreignKey:CategoryID"`
 	Price      float64   `gorm:"column:price;not null"`
 	Stock      int       `gorm:"column:stock;not null"`
+	ImageURL   string    `gorm:"column:image_url;size:255"`
+	PublicID   string    `gorm:"column:image_public_id;size:150"` // NEW
 	CreatedAt  time.Time `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt  time.Time `gorm:"column:updated_at;autoUpdateTime"`
 }
