@@ -44,12 +44,17 @@ type Product struct {
 }
 
 type StockMovement struct {
-	ID        uint      `gorm:"primaryKey;column:id"`
-	ProductID uint      `gorm:"column:product_id"`
-	Product   Product   `gorm:"foreignKey:ProductID"`
-	Type      string    `gorm:"column:type;size:10;not null"` // in/out
-	Quantity  int       `gorm:"column:quantity;not null"`
-	Note      string    `gorm:"column:note;size:255"`
+	ID        uint    `gorm:"primaryKey;column:id"`
+	ProductID uint    `gorm:"column:product_id"`
+	Product   Product `gorm:"foreignKey:ProductID"`
+	Type      string  `gorm:"column:type;size:10;not null"` // in/out
+	Quantity  int     `gorm:"column:quantity;not null"`
+	Note      string  `gorm:"column:note;size:255"`
+
+	// Reference polymorphic
+	ReferenceID   *uint  `gorm:"column:reference_id"`   // bisa id dari transaction / order / purchase
+	ReferenceType string `gorm:"column:reference_type"` // "transaction", "order", "purchase"
+
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
 }
 

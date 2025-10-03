@@ -47,7 +47,6 @@ func (h *CategoryHandler) FindAll(ctx *gin.Context) {
 
 func (h *CategoryHandler) FindWithFilter(ctx *gin.Context) {
 	var filter dto.CategoryFilter
-
 	// default pagination
 	filter.Page = 1
 	filter.Limit = 10
@@ -57,24 +56,14 @@ func (h *CategoryHandler) FindWithFilter(ctx *gin.Context) {
 		return
 	}
 
-	data, total, err := h.service.FindWithFilter(filter)
+	data, meta, err := h.service.FindWithFilter(filter)
 	if err != nil {
 		response.Error(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	totalPages := int((total + int64(filter.Limit) - 1) / int64(filter.Limit))
-
-	meta := response.PaginationMeta{
-		TotalRecords: total,
-		TotalPages:   totalPages,
-		CurrentPage:  filter.Page,
-		PageSize:     filter.Limit,
-	}
-
 	response.SuccessWithPagination(ctx, "Categories fetched successfully", data, meta)
 }
-
 func (h *CategoryHandler) FindByID(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	category, err := h.service.FindByID(uint(id))

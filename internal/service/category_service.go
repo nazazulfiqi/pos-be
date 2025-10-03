@@ -5,12 +5,13 @@ import (
 	"pos-be/internal/dto"
 	"pos-be/internal/model"
 	"pos-be/internal/repository"
+	"pos-be/internal/response"
 )
 
 type CategoryService interface {
 	Create(req dto.CreateCategoryRequest) (dto.CategoryResponse, error)
 	FindAll() ([]dto.CategoryResponse, error)
-	FindWithFilter(filter dto.CategoryFilter) ([]dto.CategoryResponse, int64, error)
+	FindWithFilter(filter dto.CategoryFilter) ([]dto.CategoryResponse, response.PaginationMeta, error)
 	FindByID(id uint) (dto.CategoryResponse, error)
 	Update(id uint, req dto.UpdateCategoryRequest) (dto.CategoryResponse, error)
 	Delete(id uint) error
@@ -49,20 +50,30 @@ func (s *categoryService) FindAll() ([]dto.CategoryResponse, error) {
 	return result, nil
 }
 
-func (s *categoryService) FindWithFilter(filter dto.CategoryFilter) ([]dto.CategoryResponse, int64, error) {
+func (s *categoryService) FindWithFilter(filter dto.CategoryFilter) ([]dto.CategoryResponse, response.PaginationMeta, error) {
 	categories, total, err := s.repo.FindWithFilter(filter.Search, filter.Page, filter.Limit)
 	if err != nil {
-		return nil, 0, err
+		return nil, response.PaginationMeta{}, err
 	}
 
-	result := make([]dto.CategoryResponse, 0) // bukan var result []
+	result := make([]dto.CategoryResponse, 0)
 	for _, c := range categories {
 		result = append(result, dto.CategoryResponse{
 			ID:   c.ID,
 			Name: c.Name,
 		})
 	}
-	return result, total, nil
+
+	// hitung pagination meta
+	totalPages := int((total + int64(filter.Limit) - 1) / int64(filter.Limit))
+	meta := response.PaginationMeta{
+		TotalRecords: total,
+		TotalPages:   totalPages,
+		CurrentPage:  filter.Page,
+		PageSize:     filter.Limit,
+	}
+
+	return result, meta, nil
 }
 
 func (s *categoryService) FindByID(id uint) (dto.CategoryResponse, error) {
