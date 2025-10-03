@@ -33,3 +33,12 @@ type ProductResponse struct {
 	UpdatedAt string  `json:"updated_at"`
 	PublicID  string  `json:"-"`
 }
+
+// --- FILTER ---
+type ProductFilter struct {
+	Name       string `form:"name"`
+	SKU        string `form:"sku"`
+	CategoryID uint   `form:"category_id"`
+	Page       int    `form:"page,default=1"`
+	Limit      int    `form:"limit,default=10"`
+}

@@ -134,3 +134,20 @@ func (h *ProductHandler) FindAll(ctx *gin.Context) {
 
 	response.Success(ctx, "Products fetched successfully", products)
 }
+
+// --- FIND WITH FILTER ---
+func (h *ProductHandler) FindWithFilter(ctx *gin.Context) {
+	var filter dto.ProductFilter
+	if err := ctx.ShouldBindQuery(&filter); err != nil {
+		response.Error(ctx, http.StatusBadRequest, "Invalid query params")
+		return
+	}
+
+	products, meta, err := h.service.FindWithFilter(filter)
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	response.SuccessWithPagination(ctx, "Products fetched successfully", products, meta)
+}

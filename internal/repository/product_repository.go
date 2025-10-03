@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"pos-be/internal/dto"
 	"pos-be/internal/model"
 
 	"gorm.io/gorm"
@@ -12,6 +13,7 @@ type ProductRepository interface {
 	Delete(id uint) error
 	FindByID(id uint) (*model.Product, error)
 	FindAll() ([]model.Product, error)
+	FindWithFilter(filter dto.ProductFilter) ([]model.Product, int64, error)
 }
 
 type productRepository struct {
@@ -48,4 +50,35 @@ func (r *productRepository) FindAll() ([]model.Product, error) {
 		return nil, err
 	}
 	return products, nil
+}
+
+func (r *productRepository) FindWithFilter(filter dto.ProductFilter) ([]model.Product, int64, error) {
+	var products []model.Product
+	var total int64
+
+	query := r.db.Model(&model.Product{}).Preload("Category")
+
+	if filter.Name != "" {
+		query = query.Where("name ILIKE ?", "%"+filter.Name+"%")
+	}
+
+	if filter.SKU != "" {
+		query = query.Where("sku ILIKE ?", "%"+filter.SKU+"%")
+	}
+
+	if filter.CategoryID != 0 {
+		query = query.Where("category_id = ?", filter.CategoryID)
+	}
+
+	// total records
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (filter.Page - 1) * filter.Limit
+	if err := query.Offset(offset).Limit(filter.Limit).Find(&products).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return products, total, nil
 }

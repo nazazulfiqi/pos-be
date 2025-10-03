@@ -5,6 +5,7 @@ import (
 	"pos-be/internal/dto"
 	"pos-be/internal/model"
 	"pos-be/internal/repository"
+	"pos-be/internal/response"
 	"pos-be/utils"
 	"time"
 )
@@ -15,6 +16,7 @@ type ProductService interface {
 	Delete(id uint) error
 	FindByID(id uint) (dto.ProductResponse, error)
 	FindAll() ([]dto.ProductResponse, error)
+	FindWithFilter(filter dto.ProductFilter) ([]dto.ProductResponse, response.PaginationMeta, error)
 }
 
 type productService struct {
@@ -141,4 +143,43 @@ func (s *productService) toResponse(p model.Product) dto.ProductResponse {
 		UpdatedAt: p.UpdatedAt.Format(time.RFC3339),
 		PublicID:  p.PublicID,
 	}
+}
+
+func (s *productService) FindWithFilter(filter dto.ProductFilter) ([]dto.ProductResponse, response.PaginationMeta, error) {
+	products, total, err := s.repo.FindWithFilter(filter)
+	if err != nil {
+		return nil, response.PaginationMeta{}, err
+	}
+
+	// mapping ke response DTO
+	result := []dto.ProductResponse{}
+	for _, p := range products {
+		result = append(result, dto.ProductResponse{
+			ID:        p.ID,
+			Name:      p.Name,
+			SKU:       p.SKU,
+			Category:  p.Category.Name,
+			Price:     p.Price,
+			Stock:     p.Stock,
+			ImageURL:  p.ImageURL,
+			CreatedAt: p.CreatedAt.Format(time.RFC3339),
+			UpdatedAt: p.UpdatedAt.Format(time.RFC3339),
+			PublicID:  p.PublicID,
+		})
+	}
+
+	if result == nil {
+		result = []dto.ProductResponse{}
+	}
+
+	// pagination meta dihitung di service, bukan handler
+	totalPages := int((total + int64(filter.Limit) - 1) / int64(filter.Limit))
+	meta := response.PaginationMeta{
+		TotalRecords: total,
+		TotalPages:   totalPages,
+		CurrentPage:  filter.Page,
+		PageSize:     filter.Limit,
+	}
+
+	return result, meta, nil
 }
