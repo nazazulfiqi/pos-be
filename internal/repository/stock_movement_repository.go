@@ -7,7 +7,7 @@ import (
 )
 
 type StockMovementRepository interface {
-	Create(movement *model.StockMovement) error
+	Create(tx *gorm.DB, movement *model.StockMovement) error
 	FindAll() ([]model.StockMovement, error)
 	FindByProduct(productID uint) ([]model.StockMovement, error)
 }
@@ -20,8 +20,12 @@ func NewStockMovementRepository(db *gorm.DB) StockMovementRepository {
 	return &stockMovementRepository{db}
 }
 
-func (r *stockMovementRepository) Create(movement *model.StockMovement) error {
-	return r.db.Create(movement).Error
+func (r *stockMovementRepository) Create(tx *gorm.DB, movement *model.StockMovement) error {
+	db := r.db
+	if tx != nil {
+		db = tx
+	}
+	return db.Create(movement).Error
 }
 
 func (r *stockMovementRepository) FindAll() ([]model.StockMovement, error) {

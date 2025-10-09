@@ -54,6 +54,12 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			product.DELETE("/:id", c.ProductHandler.Delete)
 		}
 
+		trx := api.Group("/transactions")
+		trx.Use(middleware.JWTAuth(), middleware.AdminOrStaffOnly())
+		{
+			trx.POST("", c.TransactionHandler.Create)
+		}
+
 	}
 
 	return r

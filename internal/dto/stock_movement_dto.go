@@ -6,7 +6,7 @@ type StockMovementCreateRequest struct {
 	Type          string `json:"type" binding:"required,oneof=in out"` // validasi hanya "in" atau "out"
 	Quantity      int    `json:"quantity" binding:"required,gt=0"`
 	Note          string `json:"note"`
-	ReferenceID   *uint  `json:"reference_id"`
+	ReferenceID   string `json:"reference_id"`
 	ReferenceType string `json:"reference_type" binding:"required"` // contoh: "transaction", "order", "purchase"
 }
 
@@ -18,7 +18,7 @@ type StockMovementResponse struct {
 	Type          string `json:"type"`
 	Quantity      int    `json:"quantity"`
 	Note          string `json:"note"`
-	ReferenceID   *uint  `json:"reference_id,omitempty"`
+	ReferenceID   string `json:"reference_id,omitempty"`
 	ReferenceType string `json:"reference_type"`
 	CreatedAt     string `json:"created_at"`
 }

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"pos-be/internal/dto"
 	"pos-be/internal/model"
 
@@ -14,6 +15,7 @@ type ProductRepository interface {
 	FindByID(id uint) (*model.Product, error)
 	FindAll() ([]model.Product, error)
 	FindWithFilter(filter dto.ProductFilter) ([]model.Product, int64, error)
+	DecreaseStock(tx *gorm.DB, productID uint, quantity int) error
 }
 
 type productRepository struct {
@@ -81,4 +83,26 @@ func (r *productRepository) FindWithFilter(filter dto.ProductFilter) ([]model.Pr
 	}
 
 	return products, total, nil
+}
+
+func (r *productRepository) DecreaseStock(tx *gorm.DB, productID uint, quantity int) error {
+	db := r.db
+	if tx != nil {
+		db = tx
+	}
+
+	// Kurangi stok, pastikan stok tidak kurang dari 0
+	result := db.Model(&model.Product{}).
+		Where("id = ? AND stock >= ?", productID, quantity).
+		Update("stock", gorm.Expr("stock - ?", quantity))
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("insufficient stock for product ID %d", productID)
+	}
+
+	return nil
 }

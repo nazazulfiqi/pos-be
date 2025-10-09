@@ -5,10 +5,12 @@ import (
 	"pos-be/internal/model"
 	"pos-be/internal/repository"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type StockMovementService interface {
-	Create(req dto.StockMovementCreateRequest) (dto.StockMovementResponse, error)
+	Create(req dto.StockMovementCreateRequest, tx *gorm.DB) (dto.StockMovementResponse, error)
 	FindAll() ([]dto.StockMovementResponse, error)
 	FindByProduct(productID uint) ([]dto.StockMovementResponse, error)
 }
@@ -21,7 +23,7 @@ func NewStockMovementService(repo repository.StockMovementRepository) StockMovem
 	return &stockMovementService{repo}
 }
 
-func (s *stockMovementService) Create(req dto.StockMovementCreateRequest) (dto.StockMovementResponse, error) {
+func (s *stockMovementService) Create(req dto.StockMovementCreateRequest, tx *gorm.DB) (dto.StockMovementResponse, error) {
 	movement := model.StockMovement{
 		ProductID:     req.ProductID,
 		Type:          req.Type,
@@ -32,7 +34,7 @@ func (s *stockMovementService) Create(req dto.StockMovementCreateRequest) (dto.S
 		CreatedAt:     time.Now(),
 	}
 
-	err := s.repo.Create(&movement)
+	err := s.repo.Create(tx, &movement)
 	if err != nil {
 		return dto.StockMovementResponse{}, err
 	}

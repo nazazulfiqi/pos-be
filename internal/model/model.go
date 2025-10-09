@@ -52,14 +52,14 @@ type StockMovement struct {
 	Note      string  `gorm:"column:note;size:255"`
 
 	// Reference polymorphic
-	ReferenceID   *uint  `gorm:"column:reference_id"`   // bisa id dari transaction / order / purchase
-	ReferenceType string `gorm:"column:reference_type"` // "transaction", "order", "purchase"
+	ReferenceID   string `gorm:"column:reference_id;size:50"`   // TRX-25-0001, ORD-25-0001, dll
+	ReferenceType string `gorm:"column:reference_type;size:50"` // transaction, order, adjustment, etc
 
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
 }
 
 type Transaction struct {
-	ID            uint              `gorm:"primaryKey;column:id"`
+	ID            string            `gorm:"primaryKey;column:id;size:20"`
 	UserID        uint              `gorm:"column:user_id"`
 	User          User              `gorm:"foreignKey:UserID"`
 	CustomerID    *uint             `gorm:"column:customer_id"`
@@ -73,7 +73,7 @@ type Transaction struct {
 
 type TransactionItem struct {
 	ID            uint    `gorm:"primaryKey;column:id"`
-	TransactionID uint    `gorm:"column:transaction_id;index"`
+	TransactionID string  `gorm:"column:transaction_id;index"`
 	ProductID     uint    `gorm:"column:product_id"`
 	Product       Product `gorm:"foreignKey:ProductID"`
 	Quantity      int     `gorm:"column:quantity;not null"`

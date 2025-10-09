@@ -25,7 +25,7 @@ func (h *StockMovementHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	movement, err := h.service.Create(req)
+	movement, err := h.service.Create(req, nil)
 	if err != nil {
 		response.Error(ctx, http.StatusInternalServerError, err.Error())
 		return
