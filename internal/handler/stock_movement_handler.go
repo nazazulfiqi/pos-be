@@ -44,8 +44,8 @@ func (h *StockMovementHandler) FindAll(ctx *gin.Context) {
 	response.Success(ctx, "Stock movements fetched successfully", movements)
 }
 
-func (h *StockMovementHandler) FindByProduct(ctx *gin.Context) {
-	productIDParam := ctx.Param("product_id")
+func (h *StockMovementHandler) FindByIdProduct(ctx *gin.Context) {
+	productIDParam := ctx.Param("id")
 	productID, err := strconv.Atoi(productIDParam)
 	if err != nil {
 		response.Error(ctx, http.StatusBadRequest, "Invalid product_id")
