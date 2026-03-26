@@ -7,4 +7,4 @@ integrasi fitur dari developer lain
 testing sebelum masuk release
 Flow:
 
-feature/* → develop → release → main
+feature/* → dev → main
