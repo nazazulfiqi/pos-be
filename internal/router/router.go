@@ -72,5 +72,16 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 	}
 
+	stores := api.Group("/stores")
+	stores.Use(middleware.JWTAuth(), middleware.TenantRequired())
+	{
+		stores.GET("/filter", middleware.RequirePermission("store.read"), c.StoreHandler.FindWithFilter)
+		stores.POST("", middleware.RequirePermission("store.create"), c.StoreHandler.Create)
+		stores.GET("", middleware.RequirePermission("store.read"), c.StoreHandler.FindAll)
+		stores.GET("/:id", middleware.RequirePermission("store.read"), c.StoreHandler.FindByID)
+		stores.PUT("/:id", middleware.RequirePermission("store.update"), c.StoreHandler.Update)
+		stores.DELETE("/:id", middleware.RequirePermission("store.delete"), c.StoreHandler.Delete)
+	}
+
 	return r
 }
