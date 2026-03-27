@@ -4,7 +4,8 @@ package dto
 type ProductCreateRequest struct {
 	Name       string  `form:"name" binding:"required"`
 	SKU        string  `form:"sku" binding:"required"`
-	CategoryID uint    `form:"category_id" binding:"required"`
+	CategoryID string  `form:"category_id" binding:"required"`
+	TenantID   *string `form:"tenant_id"`
 	Price      float64 `form:"price" binding:"required"`
 	Stock      int     `form:"stock" binding:"required"`
 	// image di-handle di handler pakai ctx.FormFile("image")
@@ -14,7 +15,8 @@ type ProductCreateRequest struct {
 type ProductUpdateRequest struct {
 	Name       string  `form:"name" binding:"required"`
 	SKU        string  `form:"sku" binding:"required"`
-	CategoryID uint    `form:"category_id" binding:"required"`
+	CategoryID string  `form:"category_id" binding:"required"`
+	TenantID   *string `form:"tenant_id"`
 	Price      float64 `form:"price" binding:"required"`
 	Stock      int     `form:"stock" binding:"required"`
 	// image optional → kalau tidak ada, pakai gambar lama
@@ -22,7 +24,7 @@ type ProductUpdateRequest struct {
 
 // --- RESPONSE ---
 type ProductResponse struct {
-	ID        uint    `json:"id"`
+	ID        string  `json:"id"`
 	Name      string  `json:"name"`
 	SKU       string  `json:"sku"`
 	Category  string  `json:"category"`
@@ -36,9 +38,10 @@ type ProductResponse struct {
 
 // --- FILTER ---
 type ProductFilter struct {
-	Name       string `form:"name"`
-	SKU        string `form:"sku"`
-	CategoryID uint   `form:"category_id"`
-	Page       int    `form:"page,default=1"`
-	Limit      int    `form:"limit,default=10"`
+	Name       string  `form:"name"`
+	SKU        string  `form:"sku"`
+	CategoryID string  `form:"category_id"`
+	TenantID   *string `form:"tenant_id"`
+	Page       int     `form:"page,default=1"`
+	Limit      int     `form:"limit,default=10"`
 }

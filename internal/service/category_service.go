@@ -10,11 +10,11 @@ import (
 
 type CategoryService interface {
 	Create(req dto.CreateCategoryRequest) (dto.CategoryResponse, error)
-	FindAll() ([]dto.CategoryResponse, error)
+	FindAll(tenantID *string) ([]dto.CategoryResponse, error)
 	FindWithFilter(filter dto.CategoryFilter) ([]dto.CategoryResponse, response.PaginationMeta, error)
-	FindByID(id uint) (dto.CategoryResponse, error)
-	Update(id uint, req dto.UpdateCategoryRequest) (dto.CategoryResponse, error)
-	Delete(id uint) error
+	FindByID(id string) (dto.CategoryResponse, error)
+	Update(id string, req dto.UpdateCategoryRequest) (dto.CategoryResponse, error)
+	Delete(id string) error
 }
 
 type categoryService struct {
@@ -27,7 +27,8 @@ func NewCategoryService(repo repository.CategoryRepository) CategoryService {
 
 func (s *categoryService) Create(req dto.CreateCategoryRequest) (dto.CategoryResponse, error) {
 	category := model.Category{
-		Name: req.Name,
+		Name:     req.Name,
+		TenantID: req.TenantID,
 	}
 
 	if err := s.repo.Create(&category); err != nil {
@@ -37,8 +38,8 @@ func (s *categoryService) Create(req dto.CreateCategoryRequest) (dto.CategoryRes
 	return dto.CategoryResponse{ID: category.ID, Name: category.Name}, nil
 }
 
-func (s *categoryService) FindAll() ([]dto.CategoryResponse, error) {
-	categories, err := s.repo.FindAll()
+func (s *categoryService) FindAll(tenantID *string) ([]dto.CategoryResponse, error) {
+	categories, err := s.repo.FindAll(tenantID)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func (s *categoryService) FindAll() ([]dto.CategoryResponse, error) {
 }
 
 func (s *categoryService) FindWithFilter(filter dto.CategoryFilter) ([]dto.CategoryResponse, response.PaginationMeta, error) {
-	categories, total, err := s.repo.FindWithFilter(filter.Search, filter.Page, filter.Limit)
+	categories, total, err := s.repo.FindWithFilter(filter.Search, filter.Page, filter.Limit, filter.TenantID)
 	if err != nil {
 		return nil, response.PaginationMeta{}, err
 	}
@@ -76,7 +77,7 @@ func (s *categoryService) FindWithFilter(filter dto.CategoryFilter) ([]dto.Categ
 	return result, meta, nil
 }
 
-func (s *categoryService) FindByID(id uint) (dto.CategoryResponse, error) {
+func (s *categoryService) FindByID(id string) (dto.CategoryResponse, error) {
 	category, err := s.repo.FindByID(id)
 	if err != nil {
 		return dto.CategoryResponse{}, errors.New("category not found")
@@ -84,7 +85,7 @@ func (s *categoryService) FindByID(id uint) (dto.CategoryResponse, error) {
 	return dto.CategoryResponse{ID: category.ID, Name: category.Name}, nil
 }
 
-func (s *categoryService) Update(id uint, req dto.UpdateCategoryRequest) (dto.CategoryResponse, error) {
+func (s *categoryService) Update(id string, req dto.UpdateCategoryRequest) (dto.CategoryResponse, error) {
 	category, err := s.repo.FindByID(id)
 	if err != nil {
 		return dto.CategoryResponse{}, errors.New("category not found")
@@ -99,7 +100,7 @@ func (s *categoryService) Update(id uint, req dto.UpdateCategoryRequest) (dto.Ca
 	return dto.CategoryResponse{ID: category.ID, Name: category.Name}, nil
 }
 
-func (s *categoryService) Delete(id uint) error {
+func (s *categoryService) Delete(id string) error {
 	category, err := s.repo.FindByID(id)
 	if err != nil {
 		return errors.New("category not found")

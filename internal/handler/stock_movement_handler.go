@@ -5,7 +5,6 @@ import (
 	"pos-be/internal/dto"
 	"pos-be/internal/response"
 	"pos-be/internal/service"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -45,14 +44,9 @@ func (h *StockMovementHandler) FindAll(ctx *gin.Context) {
 }
 
 func (h *StockMovementHandler) FindByIdProduct(ctx *gin.Context) {
-	productIDParam := ctx.Param("id")
-	productID, err := strconv.Atoi(productIDParam)
-	if err != nil {
-		response.Error(ctx, http.StatusBadRequest, "Invalid product_id")
-		return
-	}
+	productID := ctx.Param("id")
 
-	movements, err := h.service.FindByProduct(uint(productID))
+	movements, err := h.service.FindByProduct(productID)
 	if err != nil {
 		response.Error(ctx, http.StatusInternalServerError, err.Error())
 		return

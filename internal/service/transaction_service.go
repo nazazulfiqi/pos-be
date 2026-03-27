@@ -51,6 +51,7 @@ func (s *transactionService) CreateTransaction(req dto.CreateTransactionRequest)
 
 		items = append(items, model.TransactionItem{
 			ProductID: item.ProductID,
+			TenantID:  req.TenantID,
 			Quantity:  item.Quantity,
 			Price:     item.Price,
 			Subtotal:  subtotal,
@@ -65,6 +66,7 @@ func (s *transactionService) CreateTransaction(req dto.CreateTransactionRequest)
 		// buat record stock movement (out)
 		sm := model.StockMovement{
 			ProductID:     item.ProductID,
+			TenantID:      req.TenantID,
 			Type:          "out",
 			Quantity:      item.Quantity,
 			Note:          "Transaction sale",
@@ -81,6 +83,7 @@ func (s *transactionService) CreateTransaction(req dto.CreateTransactionRequest)
 		ID:            id,
 		UserID:        req.UserID,
 		CustomerID:    req.CustomerID,
+		TenantID:      req.TenantID,
 		PaymentMethod: req.PaymentMethod,
 		TotalAmount:   total,
 		Items:         items,

@@ -47,73 +47,105 @@ func JWTAuth() gin.HandlerFunc {
 		}
 
 		c.Set("user_id", claims["user_id"])
-		c.Set("role_id", claims["role_id"])
+		c.Set("roles", claims["roles"])
+		c.Set("permissions", claims["permissions"])
+		c.Set("tenant_id", claims["tenant_id"])
 
 		c.Next()
 	}
 }
 
-func AdminOnly() gin.HandlerFunc {
+// hasRole checks if rolesClaim (from JWT or context) contains target role slug.
+func hasRole(rolesClaim interface{}, target string) bool {
+	switch v := rolesClaim.(type) {
+	case []string:
+		for _, s := range v {
+			if s == target {
+				return true
+			}
+		}
+	case []interface{}:
+		for _, item := range v {
+			if s, ok := item.(string); ok && s == target {
+				return true
+			}
+		}
+	case jwt.MapClaims:
+		// not expected here, but handle defensively
+		if raw, ok := v["roles"]; ok {
+			return hasRole(raw, target)
+		}
+	default:
+		// try string (single role)
+		if s, ok := v.(string); ok && s == target {
+			return true
+		}
+	}
+	return false
+}
+
+// hasPermission checks if permissionsClaim (from JWT or context) contains target permission slug.
+func hasPermission(permissionsClaim interface{}, target string) bool {
+	switch v := permissionsClaim.(type) {
+	case []string:
+		for _, s := range v {
+			if s == target {
+				return true
+			}
+		}
+	case []interface{}:
+		for _, item := range v {
+			if s, ok := item.(string); ok && s == target {
+				return true
+			}
+		}
+	case jwt.MapClaims:
+		if raw, ok := v["permissions"]; ok {
+			return hasPermission(raw, target)
+		}
+	default:
+		if s, ok := v.(string); ok && s == target {
+			return true
+		}
+	}
+	return false
+}
+
+// RequirePermission ensures the JWT contains the required permission slug.
+func RequirePermission(permission string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		userRoleID, exists := ctx.Get("role_id")
+		// admin bypass
+		rolesClaim, _ := ctx.Get("roles")
+		if hasRole(rolesClaim, "admin") {
+			ctx.Next()
+			return
+		}
+
+		permissionsClaim, exists := ctx.Get("permissions")
 		if !exists {
-			response.Error(ctx, http.StatusUnauthorized, "Unauthorized")
+			response.Error(ctx, http.StatusForbidden, "Forbidden: missing permissions")
 			ctx.Abort()
 			return
 		}
 
-		switch roleID := userRoleID.(type) {
-		case float64: // dari JWT MapClaims
-			if int(roleID) != 1 {
-				response.Error(ctx, http.StatusForbidden, "Forbidden: Admin only")
-				ctx.Abort()
-				return
-			}
-		case uint: // kalau dari DB atau langsung set
-			if roleID != 1 {
-				response.Error(ctx, http.StatusForbidden, "Forbidden: Admin only")
-				ctx.Abort()
-				return
-			}
-		default:
-			response.Error(ctx, http.StatusForbidden, "Forbidden: Invalid role type")
+		if !hasPermission(permissionsClaim, permission) {
+			response.Error(ctx, http.StatusForbidden, "Forbidden: insufficient permission")
 			ctx.Abort()
 			return
 		}
-
 		ctx.Next()
 	}
 }
 
-func AdminOrStaffOnly() gin.HandlerFunc {
+// TenantRequired ensures the token includes a tenant_id (non-nil), used for tenant-scoped routes.
+func TenantRequired() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		userRoleID, exists := ctx.Get("role_id")
-		if !exists {
-			response.Error(ctx, http.StatusUnauthorized, "Unauthorized")
+		t, exists := ctx.Get("tenant_id")
+		if !exists || t == nil {
+			response.Error(ctx, http.StatusForbidden, "Forbidden: tenant required in token")
 			ctx.Abort()
 			return
 		}
-
-		// Cek apakah role_id bukan 1 (admin) dan bukan 2 (staff/kasir)
-		switch roleID := userRoleID.(type) {
-		case float64: // jwt.MapClaims biasanya decode ke float64
-			if roleID != 1 && roleID != 2 {
-				response.Error(ctx, http.StatusForbidden, "Forbidden: Admin or Staff only")
-				ctx.Abort()
-				return
-			}
-		case uint:
-			if roleID != 1 && roleID != 2 {
-				response.Error(ctx, http.StatusForbidden, "Forbidden: Admin or Staff only")
-				ctx.Abort()
-				return
-			}
-		default:
-			response.Error(ctx, http.StatusForbidden, "Forbidden: Invalid role")
-			ctx.Abort()
-			return
-		}
-
 		ctx.Next()
 	}
 }

@@ -16,6 +16,13 @@ func main() {
 
 	// Auto migrate semua tabel sesuai blueprint
 	err = db.AutoMigrate(
+		// identity & tenancy
+		&model.Store{},
+		&model.Tenant{},
+		&model.Role{},
+		&model.Permission{},
+		&model.UserRole{},
+		&model.RolePermission{},
 		&model.User{},
 		&model.Customer{},
 		&model.Category{},

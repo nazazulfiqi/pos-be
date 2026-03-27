@@ -6,7 +6,6 @@ import (
 	"pos-be/internal/dto"
 	"pos-be/internal/response"
 	"pos-be/internal/service"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -53,12 +52,7 @@ func (h *ProductHandler) Create(ctx *gin.Context) {
 
 // --- UPDATE ---
 func (h *ProductHandler) Update(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		response.Error(ctx, http.StatusBadRequest, "Invalid product ID")
-		return
-	}
+	id := ctx.Param("id")
 
 	var req dto.ProductUpdateRequest
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -69,6 +63,7 @@ func (h *ProductHandler) Update(ctx *gin.Context) {
 	// file upload (opsional)
 	fileHeader, _ := ctx.FormFile("image")
 	var file multipart.File
+	var err error
 	fileName := ""
 	if fileHeader != nil {
 		file, err = fileHeader.Open()
@@ -80,7 +75,7 @@ func (h *ProductHandler) Update(ctx *gin.Context) {
 		fileName = fileHeader.Filename
 	}
 
-	product, err := h.service.Update(uint(id), req, file, fileName)
+	product, err := h.service.Update(id, req, file, fileName)
 	if err != nil {
 		response.Error(ctx, http.StatusInternalServerError, err.Error())
 		return
@@ -91,14 +86,9 @@ func (h *ProductHandler) Update(ctx *gin.Context) {
 
 // --- DELETE ---
 func (h *ProductHandler) Delete(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		response.Error(ctx, http.StatusBadRequest, "Invalid product ID")
-		return
-	}
+	id := ctx.Param("id")
 
-	if err := h.service.Delete(uint(id)); err != nil {
+	if err := h.service.Delete(id); err != nil {
 		response.Error(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -108,14 +98,9 @@ func (h *ProductHandler) Delete(ctx *gin.Context) {
 
 // --- FIND BY ID ---
 func (h *ProductHandler) FindByID(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		response.Error(ctx, http.StatusBadRequest, "Invalid product ID")
-		return
-	}
+	id := ctx.Param("id")
 
-	product, err := h.service.FindByID(uint(id))
+	product, err := h.service.FindByID(id)
 	if err != nil {
 		response.Error(ctx, http.StatusNotFound, "Product not found")
 		return
@@ -126,7 +111,12 @@ func (h *ProductHandler) FindByID(ctx *gin.Context) {
 
 // --- FIND ALL ---
 func (h *ProductHandler) FindAll(ctx *gin.Context) {
-	products, err := h.service.FindAll()
+	var tenantID *string
+	if t := ctx.Query("tenant_id"); t != "" {
+		tenantID = &t
+	}
+
+	products, err := h.service.FindAll(tenantID)
 	if err != nil {
 		response.Error(ctx, http.StatusInternalServerError, err.Error())
 		return

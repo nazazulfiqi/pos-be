@@ -12,10 +12,10 @@ import (
 
 type ProductService interface {
 	Create(req dto.ProductCreateRequest, file multipart.File, fileName string) (dto.ProductResponse, error)
-	Update(id uint, req dto.ProductUpdateRequest, file multipart.File, fileName string) (dto.ProductResponse, error)
-	Delete(id uint) error
-	FindByID(id uint) (dto.ProductResponse, error)
-	FindAll() ([]dto.ProductResponse, error)
+	Update(id string, req dto.ProductUpdateRequest, file multipart.File, fileName string) (dto.ProductResponse, error)
+	Delete(id string) error
+	FindByID(id string) (dto.ProductResponse, error)
+	FindAll(tenantID *string) ([]dto.ProductResponse, error)
 	FindWithFilter(filter dto.ProductFilter) ([]dto.ProductResponse, response.PaginationMeta, error)
 }
 
@@ -46,6 +46,7 @@ func (s *productService) Create(req dto.ProductCreateRequest, file multipart.Fil
 		Name:       req.Name,
 		SKU:        req.SKU,
 		CategoryID: req.CategoryID,
+		TenantID:   req.TenantID,
 		Price:      req.Price,
 		Stock:      req.Stock,
 		ImageURL:   imageURL,
@@ -60,7 +61,7 @@ func (s *productService) Create(req dto.ProductCreateRequest, file multipart.Fil
 }
 
 // --- UPDATE ---
-func (s *productService) Update(id uint, req dto.ProductUpdateRequest, file multipart.File, fileName string) (dto.ProductResponse, error) {
+func (s *productService) Update(id string, req dto.ProductUpdateRequest, file multipart.File, fileName string) (dto.ProductResponse, error) {
 	product, err := s.repo.FindByID(id)
 	if err != nil {
 		return dto.ProductResponse{}, err
@@ -84,6 +85,9 @@ func (s *productService) Update(id uint, req dto.ProductUpdateRequest, file mult
 	product.CategoryID = req.CategoryID
 	product.Price = req.Price
 	product.Stock = req.Stock
+	if req.TenantID != nil {
+		product.TenantID = req.TenantID
+	}
 
 	if err := s.repo.Update(product); err != nil {
 		return dto.ProductResponse{}, err
@@ -93,7 +97,7 @@ func (s *productService) Update(id uint, req dto.ProductUpdateRequest, file mult
 }
 
 // --- DELETE ---
-func (s *productService) Delete(id uint) error {
+func (s *productService) Delete(id string) error {
 	product, err := s.repo.FindByID(id)
 	if err != nil {
 		return err
@@ -107,7 +111,7 @@ func (s *productService) Delete(id uint) error {
 }
 
 // --- FIND BY ID ---
-func (s *productService) FindByID(id uint) (dto.ProductResponse, error) {
+func (s *productService) FindByID(id string) (dto.ProductResponse, error) {
 	product, err := s.repo.FindByID(id)
 	if err != nil {
 		return dto.ProductResponse{}, err
@@ -116,8 +120,8 @@ func (s *productService) FindByID(id uint) (dto.ProductResponse, error) {
 }
 
 // --- FIND ALL ---
-func (s *productService) FindAll() ([]dto.ProductResponse, error) {
-	products, err := s.repo.FindAll()
+func (s *productService) FindAll(tenantID *string) ([]dto.ProductResponse, error) {
+	products, err := s.repo.FindAll(tenantID)
 	if err != nil {
 		return nil, err
 	}

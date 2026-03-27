@@ -34,3 +34,24 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 
 	response.Created(ctx, "User created successfully", userRes)
 }
+
+func (h *UserHandler) Me(ctx *gin.Context) {
+	uid, exists := ctx.Get("user_id")
+	if !exists {
+		response.Error(ctx, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+	userID, ok := uid.(string)
+	if !ok {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid token user id")
+		return
+	}
+
+	me, err := h.service.GetMe(userID)
+	if err != nil {
+		response.Error(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response.Success(ctx, "OK", me)
+}

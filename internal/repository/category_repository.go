@@ -8,9 +8,9 @@ import (
 
 type CategoryRepository interface {
 	Create(category *model.Category) error
-	FindAll() ([]model.Category, error)
-	FindWithFilter(search string, page, limit int) ([]model.Category, int64, error)
-	FindByID(id uint) (model.Category, error)
+	FindAll(tenantID *string) ([]model.Category, error)
+	FindWithFilter(search string, page, limit int, tenantID *string) ([]model.Category, int64, error)
+	FindByID(id string) (model.Category, error)
 	Update(category *model.Category) error
 	Delete(category *model.Category) error
 }
@@ -27,17 +27,25 @@ func (r *categoryRepository) Create(category *model.Category) error {
 	return r.db.Create(category).Error
 }
 
-func (r *categoryRepository) FindAll() ([]model.Category, error) {
+func (r *categoryRepository) FindAll(tenantID *string) ([]model.Category, error) {
 	var categories []model.Category
-	err := r.db.Find(&categories).Error
+	query := r.db.Model(&model.Category{})
+	if tenantID != nil {
+		query = query.Where("tenant_id = ?", *tenantID)
+	}
+	err := query.Find(&categories).Error
 	return categories, err
 }
 
-func (r *categoryRepository) FindWithFilter(search string, page, limit int) ([]model.Category, int64, error) {
+func (r *categoryRepository) FindWithFilter(search string, page, limit int, tenantID *string) ([]model.Category, int64, error) {
 	var categories []model.Category
 	var total int64
 
 	query := r.db.Model(&model.Category{})
+
+	if tenantID != nil {
+		query = query.Where("tenant_id = ?", *tenantID)
+	}
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")
@@ -58,9 +66,9 @@ func (r *categoryRepository) FindWithFilter(search string, page, limit int) ([]m
 	return categories, total, nil
 }
 
-func (r *categoryRepository) FindByID(id uint) (model.Category, error) {
+func (r *categoryRepository) FindByID(id string) (model.Category, error) {
 	var category model.Category
-	err := r.db.First(&category, id).Error
+	err := r.db.Where("id = ?", id).First(&category).Error
 	return category, err
 }
 

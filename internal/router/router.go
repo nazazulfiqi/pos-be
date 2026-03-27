@@ -22,50 +22,52 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// API routes
 	api := r.Group("/api")
 	{
+		// current user
+		api.GET("/me", middleware.JWTAuth(), c.UserHandler.Me)
 		// auth
 		api.POST("/auth/signin", c.AuthHandler.SignIn)
 
 		// user management (admin only)
 		userRoutes := api.Group("/users")
-		userRoutes.Use(middleware.JWTAuth(), middleware.AdminOnly())
+		userRoutes.Use(middleware.JWTAuth(), middleware.TenantRequired())
 		{
-			userRoutes.POST("/", c.UserHandler.CreateUser)
+			userRoutes.POST("/", middleware.RequirePermission("user.create"), c.UserHandler.CreateUser)
 		}
 
 		categories := api.Group("/categories")
-		categories.Use(middleware.JWTAuth(), middleware.AdminOrStaffOnly())
+		categories.Use(middleware.JWTAuth(), middleware.TenantRequired())
 		{
-			categories.POST("", c.CategoryHandler.Create)
-			categories.GET("", c.CategoryHandler.FindAll)
-			categories.GET("/filter", c.CategoryHandler.FindWithFilter)
-			categories.GET("/:id", c.CategoryHandler.FindByID)
-			categories.PUT("/:id", c.CategoryHandler.Update)
-			categories.DELETE("/:id", c.CategoryHandler.Delete)
+			categories.POST("", middleware.RequirePermission("category.create"), c.CategoryHandler.Create)
+			categories.GET("", middleware.RequirePermission("category.read"), c.CategoryHandler.FindAll)
+			categories.GET("/filter", middleware.RequirePermission("category.read"), c.CategoryHandler.FindWithFilter)
+			categories.GET("/:id", middleware.RequirePermission("category.read"), c.CategoryHandler.FindByID)
+			categories.PUT("/:id", middleware.RequirePermission("category.update"), c.CategoryHandler.Update)
+			categories.DELETE("/:id", middleware.RequirePermission("category.delete"), c.CategoryHandler.Delete)
 
 		}
 		product := api.Group("/products")
-		product.Use(middleware.JWTAuth(), middleware.AdminOnly())
+		product.Use(middleware.JWTAuth(), middleware.TenantRequired())
 		{
-			product.POST("", c.ProductHandler.Create)
-			product.GET("", c.ProductHandler.FindAll)
-			product.GET("/filter", c.ProductHandler.FindWithFilter)
-			product.GET("/:id", c.ProductHandler.FindByID)
-			product.PUT("/:id", c.ProductHandler.Update)
-			product.DELETE("/:id", c.ProductHandler.Delete)
+			product.POST("", middleware.RequirePermission("product.create"), c.ProductHandler.Create)
+			product.GET("", middleware.RequirePermission("product.read"), c.ProductHandler.FindAll)
+			product.GET("/filter", middleware.RequirePermission("product.read"), c.ProductHandler.FindWithFilter)
+			product.GET("/:id", middleware.RequirePermission("product.read"), c.ProductHandler.FindByID)
+			product.PUT("/:id", middleware.RequirePermission("product.update"), c.ProductHandler.Update)
+			product.DELETE("/:id", middleware.RequirePermission("product.delete"), c.ProductHandler.Delete)
 		}
 
 		stockMovement := api.Group("/stock-movements")
-		stockMovement.Use(middleware.JWTAuth(), middleware.AdminOrStaffOnly())
+		stockMovement.Use(middleware.JWTAuth(), middleware.TenantRequired())
 		{
-			stockMovement.POST("", c.StockMovementHandler.Create)
-			stockMovement.GET("", c.StockMovementHandler.FindAll)
-			stockMovement.GET("/:id", c.StockMovementHandler.FindByIdProduct)
+			stockMovement.POST("", middleware.RequirePermission("stockmovement.create"), c.StockMovementHandler.Create)
+			stockMovement.GET("", middleware.RequirePermission("stockmovement.read"), c.StockMovementHandler.FindAll)
+			stockMovement.GET("/:id", middleware.RequirePermission("stockmovement.read"), c.StockMovementHandler.FindByIdProduct)
 		}
 
 		trx := api.Group("/transactions")
-		trx.Use(middleware.JWTAuth(), middleware.AdminOrStaffOnly())
+		trx.Use(middleware.JWTAuth(), middleware.TenantRequired())
 		{
-			trx.POST("", c.TransactionHandler.Create)
+			trx.POST("", middleware.RequirePermission("transaction.create"), c.TransactionHandler.Create)
 		}
 
 	}

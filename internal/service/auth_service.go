@@ -37,12 +37,25 @@ func (s *authService) SignIn(req dto.SignInRequest) (dto.SignInResponse, error) 
 		return dto.SignInResponse{}, errors.New("invalid email or password")
 	}
 
-	// generate JWT
+	// fetch role slugs for the user and generate JWT
+	roleSlugs, err := s.repo.GetRoleSlugsByUser(user.ID)
+	if err != nil {
+		return dto.SignInResponse{}, err
+	}
+
+	// fetch permission slugs for the user
+	permissionSlugs, err := s.repo.GetPermissionSlugsByUser(user.ID)
+	if err != nil {
+		return dto.SignInResponse{}, err
+	}
+
 	claims := jwt.MapClaims{
-		"user_id": user.ID,
-		"role_id": user.RoleID,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(), // expired 24 jam
-		"iat":     time.Now().Unix(),
+		"user_id":     user.ID,
+		"roles":       roleSlugs,
+		"permissions": permissionSlugs,
+		"tenant_id":   user.TenantID,
+		"exp":         time.Now().Add(time.Hour * 24).Unix(), // expired 24 jam
+		"iat":         time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 

@@ -12,7 +12,7 @@ import (
 type StockMovementService interface {
 	Create(req dto.StockMovementCreateRequest, tx *gorm.DB) (dto.StockMovementResponse, error)
 	FindAll() ([]dto.StockMovementResponse, error)
-	FindByProduct(productID uint) ([]dto.StockMovementResponse, error)
+	FindByProduct(productID string) ([]dto.StockMovementResponse, error)
 }
 
 type stockMovementService struct {
@@ -31,6 +31,7 @@ func (s *stockMovementService) Create(req dto.StockMovementCreateRequest, tx *go
 		Note:          req.Note,
 		ReferenceID:   req.ReferenceID,
 		ReferenceType: req.ReferenceType,
+		TenantID:      req.TenantID,
 		CreatedAt:     time.Now(),
 	}
 
@@ -75,7 +76,7 @@ func (s *stockMovementService) FindAll() ([]dto.StockMovementResponse, error) {
 	return result, nil
 }
 
-func (s *stockMovementService) FindByProduct(productID uint) ([]dto.StockMovementResponse, error) {
+func (s *stockMovementService) FindByProduct(productID string) ([]dto.StockMovementResponse, error) {
 	movements, err := s.repo.FindByProduct(productID)
 	if err != nil {
 		return nil, err

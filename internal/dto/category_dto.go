@@ -1,7 +1,8 @@
 package dto
 
 type CreateCategoryRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name     string  `json:"name" binding:"required"`
+	TenantID *string `json:"tenant_id"`
 }
 
 type UpdateCategoryRequest struct {
@@ -9,12 +10,15 @@ type UpdateCategoryRequest struct {
 }
 
 type CategoryResponse struct {
-	ID   uint   `json:"id"`
+	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
 type CategoryFilter struct {
-	Search string `form:"search"`
-	Page   int    `form:"page" binding:"min=1"`
-	Limit  int    `form:"limit" binding:"min=1,max=100"`
+	Search   string  `form:"search"`
+	Page     int     `form:"page" binding:"min=1"`
+	Limit    int     `form:"limit" binding:"min=1,max=100"`
+	TenantID *string `form:"tenant_id"`
 }
+
+// (Tenant-aware CreateCategoryRequest is above)

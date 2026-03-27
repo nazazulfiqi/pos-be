@@ -9,7 +9,7 @@ import (
 type StockMovementRepository interface {
 	Create(tx *gorm.DB, movement *model.StockMovement) error
 	FindAll() ([]model.StockMovement, error)
-	FindByProduct(productID uint) ([]model.StockMovement, error)
+	FindByProduct(productID string) ([]model.StockMovement, error)
 }
 
 type stockMovementRepository struct {
@@ -34,7 +34,7 @@ func (r *stockMovementRepository) FindAll() ([]model.StockMovement, error) {
 	return movements, err
 }
 
-func (r *stockMovementRepository) FindByProduct(productID uint) ([]model.StockMovement, error) {
+func (r *stockMovementRepository) FindByProduct(productID string) ([]model.StockMovement, error) {
 	var movements []model.StockMovement
 	err := r.db.Preload("Product").
 		Where("product_id = ?", productID).

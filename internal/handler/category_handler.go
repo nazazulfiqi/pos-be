@@ -5,7 +5,6 @@ import (
 	"pos-be/internal/dto"
 	"pos-be/internal/response"
 	"pos-be/internal/service"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,7 +34,12 @@ func (h *CategoryHandler) Create(ctx *gin.Context) {
 }
 
 func (h *CategoryHandler) FindAll(ctx *gin.Context) {
-	categories, err := h.service.FindAll()
+	var tenantID *string
+	if t := ctx.Query("tenant_id"); t != "" {
+		tenantID = &t
+	}
+
+	categories, err := h.service.FindAll(tenantID)
 	if err != nil {
 		response.Error(ctx, http.StatusInternalServerError, err.Error())
 		return
@@ -65,8 +69,8 @@ func (h *CategoryHandler) FindWithFilter(ctx *gin.Context) {
 	response.SuccessWithPagination(ctx, "Categories fetched successfully", data, meta)
 }
 func (h *CategoryHandler) FindByID(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	category, err := h.service.FindByID(uint(id))
+	id := ctx.Param("id")
+	category, err := h.service.FindByID(id)
 	if err != nil {
 		response.Error(ctx, http.StatusNotFound, err.Error())
 		return
@@ -75,7 +79,7 @@ func (h *CategoryHandler) FindByID(ctx *gin.Context) {
 }
 
 func (h *CategoryHandler) Update(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := ctx.Param("id")
 
 	var req dto.UpdateCategoryRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -83,7 +87,7 @@ func (h *CategoryHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	category, err := h.service.Update(uint(id), req)
+	category, err := h.service.Update(id, req)
 	if err != nil {
 		response.Error(ctx, http.StatusNotFound, err.Error())
 		return
@@ -93,8 +97,8 @@ func (h *CategoryHandler) Update(ctx *gin.Context) {
 }
 
 func (h *CategoryHandler) Delete(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	if err := h.service.Delete(uint(id)); err != nil {
+	id := ctx.Param("id")
+	if err := h.service.Delete(id); err != nil {
 		response.Error(ctx, http.StatusNotFound, err.Error())
 		return
 	}
