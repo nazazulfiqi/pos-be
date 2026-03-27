@@ -70,6 +70,17 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			trx.POST("", middleware.RequirePermission("transaction.create"), c.TransactionHandler.Create)
 		}
 
+		tenants := api.Group("/tenants")
+		tenants.Use(middleware.JWTAuth(), middleware.TenantRequired())
+		{
+			tenants.GET("/filter", middleware.RequirePermission("tenant.read"), c.TenantHandler.FindWithFilter)
+			tenants.POST("", middleware.RequirePermission("tenant.create"), c.TenantHandler.Create)
+			tenants.GET("", middleware.RequirePermission("tenant.read"), c.TenantHandler.FindAll)
+			tenants.GET("/:id", middleware.RequirePermission("tenant.read"), c.TenantHandler.FindByID)
+			tenants.PUT("/:id", middleware.RequirePermission("tenant.update"), c.TenantHandler.Update)
+			tenants.DELETE("/:id", middleware.RequirePermission("tenant.delete"), c.TenantHandler.Delete)
+		}
+
 	}
 
 	stores := api.Group("/stores")

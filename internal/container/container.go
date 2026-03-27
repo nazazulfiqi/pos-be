@@ -16,6 +16,7 @@ type Container struct {
 	StockMovementHandler *handler.StockMovementHandler
 	TransactionHandler   *handler.TransactionHandler
 	StoreHandler         *handler.StoreHandler
+	TenantHandler        *handler.TenantHandler
 }
 
 func NewContainer(db *gorm.DB) *Container {
@@ -35,6 +36,8 @@ func NewContainer(db *gorm.DB) *Container {
 	transactionService := service.NewTransactionService(db, transactionRepo, productRepo, stockMovementRepo)
 	storeRepo := repository.NewStoreRepository(db)
 	storeService := service.NewStoreService(storeRepo)
+	tenantRepo := repository.NewTenantRepository(db)
+	tenantService := service.NewTenantService(tenantRepo)
 
 	// handler
 	userHandler := handler.NewUserHandler(userService)
@@ -44,6 +47,7 @@ func NewContainer(db *gorm.DB) *Container {
 	stockMovementHandler := handler.NewStockMovementHandler(stockMovementService)
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 	storeHandler := handler.NewStoreHandler(storeService)
+	tenantHandler := handler.NewTenantHandler(tenantService)
 
 	return &Container{
 		UserHandler:          userHandler,
@@ -53,5 +57,6 @@ func NewContainer(db *gorm.DB) *Container {
 		StockMovementHandler: stockMovementHandler,
 		TransactionHandler:   transactionHandler,
 		StoreHandler:         storeHandler,
+		TenantHandler:        tenantHandler,
 	}
 }
