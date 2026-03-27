@@ -1,4 +1,4 @@
-# 🚀 Web POS Backend with Online Ordering & Midtrans Integration
+# 🚀 Dagora POS Backend with Online Ordering & Midtrans Integration
 
 Backend untuk **Point of Sales (POS) berbasis Web** yang sudah mendukung **Online Ordering** dan integrasi dengan **Midtrans Payment Gateway**.  
 Dibangun dengan arsitektur terpisah antara frontend & backend agar lebih fleksibel dan scalable. 💡
