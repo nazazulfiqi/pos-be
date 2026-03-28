@@ -24,6 +24,7 @@ sequenceDiagram
     User->>POS: Kembali ke POS dengan Token
     POS->>POS: Simpan Token & Bersihkan URL
     POS->>User: Dashboard POS Terbuka
+```
 
 ### 2. Integrasi Backend POS
 Tim backend cukup memvalidasi Token JWT yang dikirimkan oleh Frontend melalui Header.
