@@ -24,3 +24,14 @@ sequenceDiagram
     User->>POS: Kembali ke POS dengan Token
     POS->>POS: Simpan Token & Bersihkan URL
     POS->>User: Dashboard POS Terbuka
+
+### 2. Integrasi Backend POS
+Tim backend cukup memvalidasi Token JWT yang dikirimkan oleh Frontend melalui Header.
+Header: Authorization: Bearer <JWT>
+Payload JWT: Berisi id (User ID), email, dan app_role (admin/cashier/supervisor).
+Kebijakan: Gunakan pb_user_id sebagai Foreign Key pada tabel transaksi/stok di database POS.
+
+### 3. Kebijakan Global Logout
+Untuk keluar dari sesi secara bersih di seluruh subdomain:
+Jalankan pb.authStore.clear().
+Redirect user ke: https://auth.sampora.my.id?logout=true
