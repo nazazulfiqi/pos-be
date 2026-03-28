@@ -7,10 +7,7 @@ Dibangun dengan arsitektur terpisah antara frontend & backend agar lebih fleksib
 
 ## ✨ Fitur Utama
 - 🔐 **Authentication & Authorization** (JWT, Role-based Access)
--   ```markdown
-### 🔐 Authentication
-Proyek ini menggunakan Sampora SSO. Untuk panduan integrasi token dan redirect, silakan baca:
-👉 [**Panduan Integrasi SSO**](./AUTH_INTEGRATION.md) ```
+  - 👉 [**Panduan Integrasi SSO**](./AUTH_INTEGRATION.md)
 - 📦 **Manajemen Produk & Inventori** (CRUD Produk, Kategori, Stok)
 - 🛒 **Penjualan (POS Screen)** → Cart, Checkout, Struk
 - 👥 **Manajemen Pelanggan** (opsional, histori pembelian)
