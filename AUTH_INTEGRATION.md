@@ -36,3 +36,5 @@ Kebijakan: Gunakan pb_user_id sebagai Foreign Key pada tabel transaksi/stok di d
 Untuk keluar dari sesi secara bersih di seluruh subdomain:
 Jalankan pb.authStore.clear().
 Redirect user ke: https://auth.sampora.my.id?logout=true
+
+Detailed Doc: https://docs.google.com/document/d/1biX__y8CNwj3aNVaJLgbRhwNiPMhK5FdsrvMRHbbKoQ/edit?usp=sharing
