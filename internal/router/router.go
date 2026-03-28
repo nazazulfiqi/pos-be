@@ -34,6 +34,28 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			userRoutes.POST("/", middleware.RequirePermission("user.create"), c.UserHandler.CreateUser)
 		}
 
+		permissions := api.Group("/permissions")
+		permissions.Use(middleware.JWTAuth())
+		{
+			permissions.POST("", middleware.RequirePermission("permission.create"), c.PermissionHandler.Create)
+			permissions.GET("", middleware.RequirePermission("permission.read"), c.PermissionHandler.FindAll)
+			permissions.GET("/filter", middleware.RequirePermission("permission.read"), c.PermissionHandler.FindWithFilter)
+			permissions.GET("/:id", middleware.RequirePermission("permission.read"), c.PermissionHandler.FindByID)
+			permissions.PUT("/:id", middleware.RequirePermission("permission.update"), c.PermissionHandler.Update)
+			permissions.DELETE("/:id", middleware.RequirePermission("permission.delete"), c.PermissionHandler.Delete)
+		}
+
+		roles := api.Group("/roles")
+		roles.Use(middleware.JWTAuth(), middleware.TenantRequired())
+		{
+			roles.POST("", middleware.RequirePermission("role.create"), c.RoleHandler.Create)
+			roles.GET("", middleware.RequirePermission("role.read"), c.RoleHandler.FindAll)
+			roles.GET("/filter", middleware.RequirePermission("role.read"), c.RoleHandler.FindWithFilter)
+			roles.GET("/:id", middleware.RequirePermission("role.read"), c.RoleHandler.FindByID)
+			roles.PUT("/:id", middleware.RequirePermission("role.update"), c.RoleHandler.Update)
+			roles.DELETE("/:id", middleware.RequirePermission("role.delete"), c.RoleHandler.Delete)
+		}
+
 		categories := api.Group("/categories")
 		categories.Use(middleware.JWTAuth(), middleware.TenantRequired())
 		{

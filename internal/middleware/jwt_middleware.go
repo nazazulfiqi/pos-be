@@ -114,13 +114,6 @@ func hasPermission(permissionsClaim interface{}, target string) bool {
 // RequirePermission ensures the JWT contains the required permission slug.
 func RequirePermission(permission string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// admin bypass
-		rolesClaim, _ := ctx.Get("roles")
-		if hasRole(rolesClaim, "admin") {
-			ctx.Next()
-			return
-		}
-
 		permissionsClaim, exists := ctx.Get("permissions")
 		if !exists {
 			response.Error(ctx, http.StatusForbidden, "Forbidden: missing permissions")
