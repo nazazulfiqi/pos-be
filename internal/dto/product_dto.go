@@ -5,7 +5,7 @@ type ProductCreateRequest struct {
 	Name       string  `form:"name" binding:"required"`
 	SKU        string  `form:"sku" binding:"required"`
 	CategoryID string  `form:"category_id" binding:"required"`
-	TenantID   *string `form:"tenant_id"`
+	TenantID   *string `form:"tenant_id" binding:"required"`
 	Price      float64 `form:"price" binding:"required"`
 	Stock      int     `form:"stock" binding:"required"`
 	// image di-handle di handler pakai ctx.FormFile("image")
@@ -16,7 +16,7 @@ type ProductUpdateRequest struct {
 	Name       string  `form:"name" binding:"required"`
 	SKU        string  `form:"sku" binding:"required"`
 	CategoryID string  `form:"category_id" binding:"required"`
-	TenantID   *string `form:"tenant_id"`
+	TenantID   *string `form:"tenant_id" binding:"required"`
 	Price      float64 `form:"price" binding:"required"`
 	Stock      int     `form:"stock" binding:"required"`
 	// image optional → kalau tidak ada, pakai gambar lama

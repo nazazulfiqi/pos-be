@@ -24,11 +24,36 @@ func (h *TransactionHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	result, err := h.service.CreateTransaction(req)
+	// Get user_id from JWT token
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		response.Error(ctx, http.StatusUnauthorized, "User not authenticated")
+		return
+	}
+
+	result, err := h.service.CreateTransaction(userID.(string), req)
 	if err != nil {
 		response.Error(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	response.Created(ctx, "Transaction created successfully", result)
+}
+
+func (h *TransactionHandler) Pay(ctx *gin.Context) {
+	transactionID := ctx.Param("id")
+
+	var req dto.PayTransactionRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.Error(ctx, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	result, err := h.service.PayTransaction(transactionID, req)
+	if err != nil {
+		response.Error(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response.Success(ctx, "Payment processed successfully", result)
 }

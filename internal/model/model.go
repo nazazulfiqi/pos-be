@@ -199,16 +199,30 @@ func (s *StockMovement) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
+// Payment status constants
+const (
+	PaymentStatusPending uint = 0
+	PaymentStatusSuccess uint = 1
+	PaymentStatusCancel  uint = 2
+)
+
+// Payment method constants
+const (
+	PaymentMethodCash     uint = 1 // Cash
+	PaymentMethodMidtrans uint = 2 // Midtrans
+)
+
 type Transaction struct {
 	ID            string            `gorm:"primaryKey;column:id;size:20"`
 	UserID        string            `gorm:"column:user_id;type:char(36)"`
 	User          User              `gorm:"foreignKey:UserID"`
-	TenantID      *string           `gorm:"column:tenant_id"`
+	TenantID      string            `gorm:"column:tenant_id;not null"`
 	Tenant        *Tenant           `gorm:"foreignKey:TenantID"`
 	CustomerID    *string           `gorm:"column:customer_id"`
 	Customer      *Customer         `gorm:"foreignKey:CustomerID"`
 	TotalAmount   float64           `gorm:"column:total_amount;not null"`
-	PaymentMethod string            `gorm:"column:payment_method;size:50;not null"`
+	PaymentMethod uint              `gorm:"column:payment_method"` // 1=Cash, 2=Midtrans
+	PaymentStatus uint              `gorm:"column:payment_status;not null;default:0"`
 	CreatedAt     time.Time         `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt     time.Time         `gorm:"column:updated_at;autoUpdateTime"`
 	Items         []TransactionItem `gorm:"foreignKey:TransactionID"`
@@ -217,7 +231,7 @@ type Transaction struct {
 type TransactionItem struct {
 	ID            string  `gorm:"primaryKey;column:id;type:char(36)"`
 	TransactionID string  `gorm:"column:transaction_id;index"`
-	TenantID      *string `gorm:"column:tenant_id"`
+	TenantID      string  `gorm:"column:tenant_id;not null"`
 	ProductID     string  `gorm:"column:product_id;type:char(36)"`
 	Product       Product `gorm:"foreignKey:ProductID"`
 	Quantity      int     `gorm:"column:quantity;not null"`

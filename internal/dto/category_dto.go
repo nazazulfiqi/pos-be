@@ -2,7 +2,7 @@ package dto
 
 type CreateCategoryRequest struct {
 	Name     string  `json:"name" binding:"required"`
-	TenantID *string `json:"tenant_id"`
+	TenantID *string `json:"tenant_id" binding:"required"` // Menambahkan tenant_id sebagai field yang wajib diisi
 }
 
 type UpdateCategoryRequest struct {

@@ -11,6 +11,8 @@ import (
 type TransactionRepository interface {
 	GenerateTransactionID() (string, error)
 	CreateTransaction(tx *gorm.DB, transaction *model.Transaction) error
+	FindByID(id string) (*model.Transaction, error)
+	UpdatePaymentStatus(tx *gorm.DB, id string, status uint) error
 	WithTrx(trx *gorm.DB) TransactionRepository
 }
 
@@ -54,4 +56,16 @@ func (r *transactionRepository) GenerateTransactionID() (string, error) {
 
 func (r *transactionRepository) CreateTransaction(tx *gorm.DB, transaction *model.Transaction) error {
 	return tx.Create(transaction).Error
+}
+
+func (r *transactionRepository) FindByID(id string) (*model.Transaction, error) {
+	var transaction model.Transaction
+	if err := r.db.Preload("Items").Where("id = ?", id).First(&transaction).Error; err != nil {
+		return nil, err
+	}
+	return &transaction, nil
+}
+
+func (r *transactionRepository) UpdatePaymentStatus(tx *gorm.DB, id string, status uint) error {
+	return tx.Model(&model.Transaction{}).Where("id = ?", id).Update("payment_status", status).Error
 }
