@@ -18,6 +18,18 @@ func NewTenantHandler(s service.TenantService) *TenantHandler {
 	return &TenantHandler{service: s}
 }
 
+// Create godoc
+// @Summary Create tenant
+// @Description Create a new tenant. `store_id` must reference an existing store.
+// @Tags Tenant
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body dto.CreateTenantRequest true "Create Tenant Request"
+// @Success 201 {object} response.APIResponse{data=dto.TenantResponse}
+// @Failure 400 {object} response.APIResponse
+// @Failure 500 {object} response.APIResponse
+// @Router /tenants/ [post]
 func (h *TenantHandler) Create(ctx *gin.Context) {
 	var req dto.CreateTenantRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -37,6 +49,16 @@ func (h *TenantHandler) Create(ctx *gin.Context) {
 	response.Created(ctx, "Tenant created successfully", t)
 }
 
+// FindAll godoc
+// @Summary Get all tenants
+// @Description Retrieve list of tenants (optionally filtered by store_id)
+// @Tags Tenant
+// @Produce json
+// @Security BearerAuth
+// @Param store_id query string false "Store ID"
+// @Success 200 {object} response.APIResponse{data=[]dto.TenantResponse}
+// @Failure 500 {object} response.APIResponse
+// @Router /tenants [get]
 func (h *TenantHandler) FindAll(ctx *gin.Context) {
 	var storeID *string
 	if v := ctx.Query("store_id"); v != "" {
@@ -50,6 +72,20 @@ func (h *TenantHandler) FindAll(ctx *gin.Context) {
 	response.Success(ctx, "Tenants fetched successfully", tenants)
 }
 
+// FindWithFilter godoc
+// @Summary Get tenants with filter and pagination
+// @Description Retrieve tenants using name filter, pagination and store filter
+// @Tags Tenant
+// @Produce json
+// @Security BearerAuth
+// @Param name query string false "Name"
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Param store_id query string false "Store ID"
+// @Success 200 {object} response.APIResponse{data=[]dto.TenantResponse}
+// @Failure 400 {object} response.APIResponse
+// @Failure 500 {object} response.APIResponse
+// @Router /tenants/filter [get]
 func (h *TenantHandler) FindWithFilter(ctx *gin.Context) {
 	var filter dto.TenantFilter
 	// default pagination
@@ -70,6 +106,16 @@ func (h *TenantHandler) FindWithFilter(ctx *gin.Context) {
 	response.SuccessWithPagination(ctx, "Tenants fetched successfully", data, meta)
 }
 
+// FindByID godoc
+// @Summary Get tenant by ID
+// @Description Retrieve a single tenant by its ID
+// @Tags Tenant
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Tenant ID"
+// @Success 200 {object} response.APIResponse{data=dto.TenantResponse}
+// @Failure 404 {object} response.APIResponse
+// @Router /tenants/{id} [get]
 func (h *TenantHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 	t, err := h.service.FindByID(id)
@@ -80,6 +126,19 @@ func (h *TenantHandler) FindByID(ctx *gin.Context) {
 	response.Success(ctx, "Tenant fetched successfully", t)
 }
 
+// Update godoc
+// @Summary Update tenant
+// @Description Update an existing tenant by ID
+// @Tags Tenant
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Tenant ID"
+// @Param request body dto.UpdateTenantRequest true "Update Tenant Request"
+// @Success 200 {object} response.APIResponse{data=dto.TenantResponse}
+// @Failure 400 {object} response.APIResponse
+// @Failure 404 {object} response.APIResponse
+// @Router /tenants/{id} [put]
 func (h *TenantHandler) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var req dto.UpdateTenantRequest
@@ -104,6 +163,16 @@ func (h *TenantHandler) Update(ctx *gin.Context) {
 	response.Success(ctx, "Tenant updated successfully", t)
 }
 
+// Delete godoc
+// @Summary Delete tenant
+// @Description Delete a tenant by ID
+// @Tags Tenant
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Tenant ID"
+// @Success 200 {object} response.APIResponse
+// @Failure 404 {object} response.APIResponse
+// @Router /tenants/{id} [delete]
 func (h *TenantHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if err := h.service.Delete(id); err != nil {

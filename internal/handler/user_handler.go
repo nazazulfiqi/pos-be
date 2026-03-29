@@ -17,6 +17,17 @@ func NewUserHandler(service service.UserService) *UserHandler {
 	return &UserHandler{service}
 }
 
+// CreateUser godoc
+// @Summary Create a new user
+// @Description Create a new user with role assignment
+// @Tags User
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body dto.CreateUserRequest true "Create User Request"
+// @Success 201 {object} response.APIResponse{data=dto.UserResponse}
+// @Failure 400 {object} response.APIResponse
+// @Router /users/ [post]
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	var req dto.CreateUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -35,6 +46,15 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	response.Created(ctx, "User created successfully", userRes)
 }
 
+// Me godoc
+// @Summary Get current user
+// @Description Retrieve profile of the authenticated user
+// @Tags User
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse{data=dto.UserResponse}
+// @Failure 401 {object} response.APIResponse
+// @Router /me [get]
 func (h *UserHandler) Me(ctx *gin.Context) {
 	uid, exists := ctx.Get("user_id")
 	if !exists {

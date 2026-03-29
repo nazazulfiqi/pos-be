@@ -18,7 +18,24 @@ func NewProductHandler(service service.ProductService) *ProductHandler {
 	return &ProductHandler{service}
 }
 
-// --- CREATE ---
+// Create godoc
+// @Summary Create product
+// @Description Create a new product (multipart/form-data). Include `image` file optionally.
+// @Tags Product
+// @Accept multipart/form-data
+// @Produce json
+// @Security BearerAuth
+// @Param name formData string true "Product name"
+// @Param sku formData string true "Product SKU"
+// @Param category_id formData string true "Category ID"
+// @Param tenant_id formData string true "Tenant ID"
+// @Param price formData number true "Price"
+// @Param stock formData int true "Stock"
+// @Param image formData file false "Image file"
+// @Success 201 {object} response.APIResponse{data=dto.ProductResponse}
+// @Failure 400 {object} response.APIResponse
+// @Failure 500 {object} response.APIResponse
+// @Router /products [post]
 func (h *ProductHandler) Create(ctx *gin.Context) {
 	var req dto.ProductCreateRequest
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -50,7 +67,26 @@ func (h *ProductHandler) Create(ctx *gin.Context) {
 	response.Created(ctx, "Product created successfully", product)
 }
 
-// --- UPDATE ---
+// Update godoc
+// @Summary Update product
+// @Description Update an existing product (multipart/form-data). `image` optional.
+// @Tags Product
+// @Accept multipart/form-data
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Product ID"
+// @Param name formData string true "Product name"
+// @Param sku formData string true "Product SKU"
+// @Param category_id formData string true "Category ID"
+// @Param tenant_id formData string true "Tenant ID"
+// @Param price formData number true "Price"
+// @Param stock formData int true "Stock"
+// @Param image formData file false "Image file"
+// @Success 200 {object} response.APIResponse{data=dto.ProductResponse}
+// @Failure 400 {object} response.APIResponse
+// @Failure 404 {object} response.APIResponse
+// @Failure 500 {object} response.APIResponse
+// @Router /products/{id} [put]
 func (h *ProductHandler) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -84,7 +120,16 @@ func (h *ProductHandler) Update(ctx *gin.Context) {
 	response.Success(ctx, "Product updated successfully", product)
 }
 
-// --- DELETE ---
+// Delete godoc
+// @Summary Delete product
+// @Description Delete a product by ID
+// @Tags Product
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Product ID"
+// @Success 200 {object} response.APIResponse
+// @Failure 500 {object} response.APIResponse
+// @Router /products/{id} [delete]
 func (h *ProductHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -96,7 +141,16 @@ func (h *ProductHandler) Delete(ctx *gin.Context) {
 	response.Success(ctx, "Product deleted successfully", nil)
 }
 
-// --- FIND BY ID ---
+// FindByID godoc
+// @Summary Get product by ID
+// @Description Retrieve a single product by its ID
+// @Tags Product
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Product ID"
+// @Success 200 {object} response.APIResponse{data=dto.ProductResponse}
+// @Failure 404 {object} response.APIResponse
+// @Router /products/{id} [get]
 func (h *ProductHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -109,7 +163,16 @@ func (h *ProductHandler) FindByID(ctx *gin.Context) {
 	response.Success(ctx, "Product fetched successfully", product)
 }
 
-// --- FIND ALL ---
+// FindAll godoc
+// @Summary Get all products
+// @Description Retrieve list of products (optionally filtered by tenant_id)
+// @Tags Product
+// @Produce json
+// @Security BearerAuth
+// @Param tenant_id query string false "Tenant ID"
+// @Success 200 {object} response.APIResponse{data=[]dto.ProductResponse}
+// @Failure 500 {object} response.APIResponse
+// @Router /products [get]
 func (h *ProductHandler) FindAll(ctx *gin.Context) {
 	var tenantID *string
 	if t := ctx.Query("tenant_id"); t != "" {
@@ -125,7 +188,22 @@ func (h *ProductHandler) FindAll(ctx *gin.Context) {
 	response.Success(ctx, "Products fetched successfully", products)
 }
 
-// --- FIND WITH FILTER ---
+// FindWithFilter godoc
+// @Summary Get products with filter and pagination
+// @Description Retrieve products using filters (name, sku, category_id) and pagination
+// @Tags Product
+// @Produce json
+// @Security BearerAuth
+// @Param name query string false "Name"
+// @Param sku query string false "SKU"
+// @Param category_id query string false "Category ID"
+// @Param tenant_id query string false "Tenant ID"
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Success 200 {object} response.APIResponse{data=[]dto.ProductResponse}
+// @Failure 400 {object} response.APIResponse
+// @Failure 500 {object} response.APIResponse
+// @Router /products/filter [get]
 func (h *ProductHandler) FindWithFilter(ctx *gin.Context) {
 	var filter dto.ProductFilter
 	if err := ctx.ShouldBindQuery(&filter); err != nil {

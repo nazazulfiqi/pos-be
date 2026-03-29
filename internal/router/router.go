@@ -4,7 +4,11 @@ import (
 	"pos-be/internal/container"
 	"pos-be/internal/middleware"
 
+	_ "pos-be/docs"
+
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
 )
 
@@ -18,6 +22,9 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"message": "Welcome to POS Backend API 🚀"})
 	})
+
+	// swagger UI
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API routes
 	api := r.Group("/api")

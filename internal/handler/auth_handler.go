@@ -17,6 +17,17 @@ func NewAuthHandler(s service.AuthService) *AuthHandler {
 	return &AuthHandler{s}
 }
 
+// SignIn godoc
+// @Summary Login user
+// @Description Authenticate user and return access token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body dto.SignInRequest true "Sign In Request"
+// @Success 200 {object} response.APIResponse{data=dto.SignInResponse}
+// @Failure 400 {object} response.APIResponse
+// @Failure 401 {object} response.APIResponse
+// @Router /auth/signin [post]
 func (h *AuthHandler) SignIn(ctx *gin.Context) {
 	var req dto.SignInRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
