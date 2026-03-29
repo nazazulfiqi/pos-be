@@ -57,3 +57,17 @@ func (h *TransactionHandler) Pay(ctx *gin.Context) {
 
 	response.Success(ctx, "Payment processed successfully", result)
 }
+
+func (h *TransactionHandler) Receipt(ctx *gin.Context) {
+	transactionID := ctx.Param("id")
+
+	pdfBytes, err := h.service.GenerateReceiptPDF(transactionID)
+	if err != nil {
+		response.Error(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx.Header("Content-Type", "application/pdf")
+	ctx.Header("Content-Disposition", "attachment; filename=receipt_"+transactionID+".pdf")
+	ctx.Data(http.StatusOK, "application/pdf", pdfBytes)
+}

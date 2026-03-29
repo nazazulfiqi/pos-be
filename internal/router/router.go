@@ -91,6 +91,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		{
 			trx.POST("", middleware.RequirePermission("transaction.create"), c.TransactionHandler.Create)
 			trx.POST("/:id/pay", middleware.RequirePermission("transaction.create"), c.TransactionHandler.Pay)
+			trx.GET("/:id/receipt", middleware.RequirePermission("transaction.read"), c.TransactionHandler.Receipt)
 		}
 
 		tenants := api.Group("/tenants")

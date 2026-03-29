@@ -60,7 +60,7 @@ func (r *transactionRepository) CreateTransaction(tx *gorm.DB, transaction *mode
 
 func (r *transactionRepository) FindByID(id string) (*model.Transaction, error) {
 	var transaction model.Transaction
-	if err := r.db.Preload("Items").Where("id = ?", id).First(&transaction).Error; err != nil {
+	if err := r.db.Preload("Items.Product").Preload("Tenant").Preload("User").Preload("Customer").Where("id = ?", id).First(&transaction).Error; err != nil {
 		return nil, err
 	}
 	return &transaction, nil
