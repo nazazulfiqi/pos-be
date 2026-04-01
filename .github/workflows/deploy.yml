@@ -1,0 +1,47 @@
+name: Deploy POS Sampora
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        # Kita gunakan '1.25.1' sesuai go.mod kamu
+        # Jika GitHub Actions belum support, '1.x' akan mengambil versi stabil terbaru
+        go-version: '1.25.1' 
+        check-latest: true
+
+    - name: Build Binary
+      run: |
+        # Mengambil dependencies
+        go mod download
+        # Build khusus Linux 64-bit
+        GOOS=linux GOARCH=amd64 go build -o sampora-pos-bin .
+
+    - name: Deploy to Server via SCP
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        source: "sampora-pos-bin"
+        target: "/home/cloudpanel/htdocs/pos.sampora.my.id/"
+
+    - name: Restart Service via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          chmod +x /home/cloudpanel/htdocs/pos.sampora.my.id/sampora-pos-bin
+          # Gunakan sudo jika di visudo tadi kita settingnya pake sudo
+          sudo systemctl restart sampora-pos.service
