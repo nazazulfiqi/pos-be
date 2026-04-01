@@ -33,7 +33,7 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         source: "sampora-pos-bin"
-        target: "/home/cloudpanel/htdocs/pos.sampora.my.id/"
+        target: "/home/samporapos/htdocs/pos.sampora.my.id/"
 
     - name: Restart Service via SSH
       uses: appleboy/ssh-action@master
@@ -42,6 +42,6 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          chmod +x /home/cloudpanel/htdocs/pos.sampora.my.id/sampora-pos-bin
+          chmod +x /home/samporapos/htdocs/pos.sampora.my.id/sampora-pos-bin
           # Gunakan sudo jika di visudo tadi kita settingnya pake sudo
           sudo systemctl restart sampora-pos.service
