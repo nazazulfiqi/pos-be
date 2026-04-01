@@ -24,7 +24,7 @@ jobs:
         # Mengambil dependencies
         go mod download
         # Build khusus Linux 64-bit
-        GOOS=linux GOARCH=amd64 go build -o sampora-pos-bin .
+        GOOS=linux GOARCH=amd64 go build -o sampora-pos-bin ./cmd/server
 
     - name: Deploy to Server via SCP
       uses: appleboy/scp-action@master
