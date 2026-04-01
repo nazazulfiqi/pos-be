@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚀 Dagora POS Backend with Online Ordering & Midtrans Integration
 
 Backend untuk **Point of Sales (POS) berbasis Web** yang sudah mendukung **Online Ordering** dan integrasi dengan **Midtrans Payment Gateway**.  
@@ -102,3 +103,6 @@ go run main.go
 ## 📜 Lisensi
 
 - MIT License © 2025 [Naza Zulfiqi](https://www.nazazulfiqi.me/)
+=======
+# pos
+>>>>>>> new/main
